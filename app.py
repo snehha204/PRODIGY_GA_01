@@ -1,5 +1,5 @@
 import streamlit as st
-from diffusers import StableDiffusionPipeline
+from diffusers import StableDiffusionPipeline, EulerDiscreteScheduler
 
 # Page Configuration
 st.set_page_config(
@@ -91,7 +91,11 @@ prompt = st.text_input(
 @st.cache_resource
 def load_model():
     pipe = StableDiffusionPipeline.from_pretrained(
-        "stabilityai/sd-turbo"
+        "stabilityai/sd-turbo",
+        scheduler=EulerDiscreteScheduler.from_pretrained(
+            "stabilityai/sd-turbo",
+            subfolder="scheduler"
+        )
     )
     pipe = pipe.to("cpu")   # Optimized for Mac
     return pipe
@@ -107,8 +111,8 @@ if st.button("🚀 Generate Image"):
 
             image = pipe(
                 prompt,
-                num_inference_steps=20,
-                guidance_scale=7.5,
+                num_inference_steps=10,
+                guidance_scale=6.0,
                 height=512,
                 width=512
             ).images[0]
